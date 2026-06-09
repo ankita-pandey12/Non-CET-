@@ -46,7 +46,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// POST /api/auth/login — Login existing student
+// POST /api/auth/login — Login existing admin or student
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -55,9 +55,25 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
+    // First check Admin
+    const admin = await require('../models/Admin').findOne({ email }).select('+password');
+    if (admin) {
+      const isMatch = await admin.comparePassword(password);
+      if (isMatch) {
+        const token = signToken(admin._id);
+        return res.json({
+          success: true,
+          message: 'Admin login successful',
+          token,
+          data: { ...admin.toObject(), role: 'admin' },
+        });
+      }
+    }
+
+    // Fallback to Student
     const student = await Student.findOne({ email }).select('+password');
     if (!student) {
-      return res.status(401).json({ success: false, message: 'No account found with this email' });
+      return res.status(401).json({ success: false, message: 'No account found with this email or invalid password' });
     }
 
     const isMatch = await student.comparePassword(password);
@@ -65,13 +81,16 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Incorrect password' });
     }
 
+    student.lastLogin = new Date();
+    await student.save();
+
     const token = signToken(student._id);
 
     res.json({
       success: true,
       message: 'Login successful',
       token,
-      data: student,
+      data: { ...student.toObject(), role: student.isAdmin ? 'admin' : 'student' },
     });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Server error', error: err.message });
@@ -88,13 +107,20 @@ router.get('/me', async (req, res) => {
 
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, JWT_SECRET);
-    const student = await Student.findById(decoded.id);
 
+    // Check Admin first
+    const admin = await require('../models/Admin').findById(decoded.id);
+    if (admin) {
+      return res.json({ success: true, data: { ...admin.toObject(), role: 'admin' } });
+    }
+
+    // Check Student
+    const student = await Student.findById(decoded.id);
     if (!student) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    res.json({ success: true, data: student });
+    res.json({ success: true, data: { ...student.toObject(), role: student.isAdmin ? 'admin' : 'student' } });
   } catch (err) {
     res.status(401).json({ success: false, message: 'Invalid or expired token' });
   }

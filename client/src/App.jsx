@@ -7,6 +7,9 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import CollegeSearch from './pages/CollegeSearch';
 import Navbar from './components/Navbar';
+import AdminDashboard from './pages/AdminDashboard';
+import AddCollegeForm from './pages/AddCollegeForm';
+import AboutUs from './pages/AboutUs';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -20,6 +23,12 @@ function GuestRoute({ children }) {
   return user ? <Navigate to="/dashboard" /> : children;
 }
 
+function AdminRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="loading-screen"><div className="loader" /></div>;
+  return user?.role === 'admin' ? children : <Navigate to="/login" />;
+}
+
 function AppRoutes() {
   return (
     <>
@@ -27,10 +36,14 @@ function AppRoutes() {
       <div className="main-content">
         <Routes>
           <Route path="/" element={<Home />} />
-      <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
-      <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/search" element={<ProtectedRoute><CollegeSearch /></ProtectedRoute>} />
+          <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+          <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/search" element={<CollegeSearch />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/admin/add-college" element={<AdminRoute><AddCollegeForm /></AdminRoute>} />
+          <Route path="/admin/edit-college/:id" element={<AdminRoute><AddCollegeForm /></AdminRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

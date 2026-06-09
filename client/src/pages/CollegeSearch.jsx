@@ -5,7 +5,7 @@ import {
   FiSearch, FiMapPin, FiBook, FiFilter, FiArrowLeft, FiChevronDown,
   FiChevronLeft, FiChevronRight, FiGlobe, FiAward, FiUsers,
   FiX, FiStar, FiCalendar, FiHome, FiExternalLink, FiMail,
-  FiTrendingUp, FiLayers, FiZap, FiMessageSquare, FiSend
+  FiTrendingUp, FiLayers, FiZap, FiMessageSquare, FiSend, FiBookmark
 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -62,7 +62,7 @@ function CutoffPill({ cutoff }) {
   );
 }
 
-function CollegeCard({ college, index, user }) {
+function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('details'); // 'details' or 'chat'
   
@@ -142,9 +142,31 @@ function CollegeCard({ college, index, user }) {
   const hasCutoffs = relevantCutoffs.length > 0;
   const hasCourses = courses.length > 0;
 
+  const toggleExpand = () => {
+    const newExpanded = !expanded;
+    setExpanded(newExpanded);
+    if (newExpanded && user) {
+      axios.post(`http://localhost:5000/api/students/${user._id}/view-college`, { collegeId: college._id })
+        .catch(err => console.error(err));
+    }
+  };
+
+  const handleSaveToggle = async (e) => {
+    e.stopPropagation();
+    if (!user) return;
+    try {
+      const res = await axios.post(`http://localhost:5000/api/students/${user._id}/save-college`, { collegeId: college._id });
+      if (res.data.success) {
+        onSaveToggle(college._id, res.data.data);
+      }
+    } catch (err) {
+      console.error('Failed to toggle save:', err);
+    }
+  };
+
   return (
     <motion.div className="college-card" variants={cardVariant} layout>
-      <div className="college-card-main" onClick={() => setExpanded(!expanded)}>
+      <div className="college-card-main" onClick={toggleExpand}>
         {/* Left accent */}
         <div className="college-card-accent" />
 
@@ -164,6 +186,16 @@ function CollegeCard({ college, index, user }) {
                   <FiStar size={12} />
                   NAAC {college.naac_grade}
                 </span>
+              )}
+              {user && (
+                <button 
+                  onClick={handleSaveToggle} 
+                  className="college-save-btn" 
+                  aria-label="Save college"
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', marginLeft: 'auto', display: 'flex', alignItems: 'center' }}
+                >
+                  <FiBookmark size={20} fill={isSaved ? 'var(--accent-orange)' : 'none'} color={isSaved ? 'var(--accent-orange)' : 'var(--text-muted)'} />
+                </button>
               )}
             </div>
           </div>
@@ -338,7 +370,7 @@ function CollegeCard({ college, index, user }) {
 }
 
 export default function CollegeSearch() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [colleges, setColleges] = useState([]);
@@ -353,6 +385,7 @@ export default function CollegeSearch() {
   const [course, setCourse] = useState('');
   const [collegeType, setCollegeType] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [savedCollegeIds, setSavedCollegeIds] = useState(new Set());
 
   // Options from API
   const [cities, setCities] = useState([]);
@@ -379,7 +412,19 @@ export default function CollegeSearch() {
       }
     };
     fetchOptions();
-  }, []);
+
+    // Fetch user's saved colleges
+    if (user?._id) {
+      axios.get(`http://localhost:5000/api/students/${user._id}/dashboard-data`)
+        .then(res => {
+          if (res.data.success && res.data.data.savedColleges) {
+            const ids = res.data.data.savedColleges.map(c => typeof c === 'string' ? c : c._id);
+            setSavedCollegeIds(new Set(ids));
+          }
+        })
+        .catch(err => console.error(err));
+    }
+  }, [user]);
 
   // Fetch colleges
   const fetchColleges = useCallback(async (pg = 1) => {
@@ -437,11 +482,6 @@ export default function CollegeSearch() {
 
   const activeFilterCount = [city, course, collegeType].filter(Boolean).length;
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
   return (
     <div className="search-page">
       <div className="search-shell">
@@ -463,9 +503,6 @@ export default function CollegeSearch() {
                 <span className="search-user-name">{user.name?.split(' ')[0]}</span>
               </div>
             )}
-            <button className="btn btn-ghost btn-sm" onClick={handleLogout}>
-              Logout
-            </button>
           </div>
         </motion.header>
 
@@ -661,7 +698,14 @@ export default function CollegeSearch() {
           {!loading && colleges.length > 0 && (
             <motion.div className="college-list" variants={stagger} initial="initial" animate="animate">
               {colleges.map((college, i) => (
-                <CollegeCard key={`${college.college_name}-${i}`} college={college} index={i} user={user} />
+                <CollegeCard 
+                  key={`${college.college_name}-${i}`} 
+                  college={college} 
+                  index={i} 
+                  user={user} 
+                  isSaved={savedCollegeIds.has(college._id)}
+                  onSaveToggle={(id, newSavedArray) => setSavedCollegeIds(new Set(newSavedArray))}
+                />
               ))}
             </motion.div>
           )}

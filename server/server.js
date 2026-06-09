@@ -6,6 +6,8 @@ const authRoutes = require('./routes/auth');
 const studentRoutes = require('./routes/student');
 const collegeRoutes = require('./routes/colleges');
 const chatRoutes = require('./routes/chat');
+const adminRoutes = require('./routes/admin');
+const collegeAdminRoutes = require('./routes/collegeAdmin');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,6 +21,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/colleges', collegeRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/admin/colleges', collegeAdminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

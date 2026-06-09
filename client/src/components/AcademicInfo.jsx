@@ -19,10 +19,16 @@ export default function AcademicInfo({ onNext, onBack, showBack }) {
     if (!data.stream) errs.stream = 'Please select your stream';
     if (data.stream === 'Science' && !data.subjects)
       errs.subjects = 'Please select subject combination';
-    if (!data.percentage && data.percentage !== 0) errs.percentage = 'Please enter percentage';
-    else {
-      const p = parseFloat(data.percentage);
-      if (isNaN(p) || p < 0 || p > 100) errs.percentage = 'Enter a valid percentage (0–100)';
+    if (!data.marksObtained && data.marksObtained !== 0 && data.marksObtained !== '0') errs.marksObtained = 'Required';
+    if (!data.totalMarks) errs.totalMarks = 'Required';
+    
+    if (data.totalMarks && data.marksObtained) {
+      const mo = parseFloat(data.marksObtained);
+      const tm = parseFloat(data.totalMarks);
+      if (isNaN(mo) || isNaN(tm)) errs.marksObtained = 'Invalid numbers';
+      else if (mo < 0) errs.marksObtained = 'Cannot be negative';
+      else if (tm <= 0) errs.totalMarks = 'Must be > 0';
+      else if (mo > tm) errs.marksObtained = 'Marks obtained cannot exceed total marks';
     }
     if (!data.category) errs.category = 'Please select your category';
     setErrors(errs);
@@ -36,11 +42,25 @@ export default function AcademicInfo({ onNext, onBack, showBack }) {
   const handleStreamChange = (val) => {
     updateField('stream', val);
     if (val !== 'Science') updateField('subjects', '');
-    // Reset course-related when stream changes
     updateField('course', '');
     updateField('examType', '');
     updateField('examScore', '');
     setErrors((e) => ({ ...e, stream: undefined }));
+  };
+
+  const handleMarksChange = (field, val) => {
+    updateField(field, val);
+    setErrors((e) => ({ ...e, [field]: undefined }));
+    
+    const mo = field === 'marksObtained' ? parseFloat(val) : parseFloat(data.marksObtained);
+    const tm = field === 'totalMarks' ? parseFloat(val) : parseFloat(data.totalMarks);
+    
+    if (!isNaN(mo) && !isNaN(tm) && tm > 0 && mo >= 0 && mo <= tm) {
+      const p = ((mo / tm) * 100).toFixed(2);
+      updateField('percentage', p);
+    } else {
+      updateField('percentage', '');
+    }
   };
 
   return (
@@ -137,28 +157,55 @@ export default function AcademicInfo({ onNext, onBack, showBack }) {
           </motion.div>
         )}
 
-        {/* Percentage */}
-        <div className={`form-group ${errors.percentage ? 'has-error' : ''}`}>
+        {/* Marks */}
+        <div className="form-group-row" style={{ display: 'flex', gap: '16px', flexDirection: 'row' }}>
+          <div className={`form-group ${errors.marksObtained ? 'has-error' : ''}`} style={{ flex: 1, minWidth: 0 }}>
+            <label className="form-label">
+              <span className="label-icon">📝</span> Marks Obtained
+            </label>
+            <input
+              type="number"
+              className="form-input"
+              placeholder="e.g. 450"
+              min="0"
+              value={data.marksObtained}
+              onChange={(e) => handleMarksChange('marksObtained', e.target.value)}
+            />
+            {errors.marksObtained && <span className="field-error" style={{ fontSize: '11px' }}>{errors.marksObtained}</span>}
+          </div>
+          
+          <div className={`form-group ${errors.totalMarks ? 'has-error' : ''}`} style={{ flex: 1, minWidth: 0 }}>
+            <label className="form-label">
+              <span className="label-icon">💯</span> Total Marks
+            </label>
+            <input
+              type="number"
+              className="form-input"
+              placeholder="e.g. 500"
+              min="1"
+              value={data.totalMarks}
+              onChange={(e) => handleMarksChange('totalMarks', e.target.value)}
+            />
+            {errors.totalMarks && <span className="field-error" style={{ fontSize: '11px' }}>{errors.totalMarks}</span>}
+          </div>
+        </div>
+
+        {/* Calculated Percentage */}
+        <div className="form-group">
           <label className="form-label">
-            <span className="label-icon">📈</span> 12th Percentage
+            <span className="label-icon">📈</span> 12th Percentage (Auto)
           </label>
           <div className="input-wrap">
             <input
               type="number"
               className="form-input"
-              placeholder="e.g. 85"
-              min="0"
-              max="100"
-              step="0.01"
+              placeholder="Calculated automatically"
               value={data.percentage}
-              onChange={(e) => {
-                updateField('percentage', e.target.value);
-                setErrors((er) => ({ ...er, percentage: undefined }));
-              }}
+              readOnly
+              style={{ background: 'var(--bg-subtle)', opacity: 0.8, cursor: 'not-allowed' }}
             />
             <span className="input-suffix">%</span>
           </div>
-          {errors.percentage && <span className="field-error">{errors.percentage}</span>}
         </div>
 
         {/* Category */}

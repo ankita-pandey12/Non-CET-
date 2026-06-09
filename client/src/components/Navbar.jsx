@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiUser, FiLogOut, FiChevronDown, FiMenu, FiX, FiSearch, FiHome } from 'react-icons/fi';
+import { FiUser, FiUsers, FiLogOut, FiChevronDown, FiMenu, FiX, FiSearch, FiHome } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
@@ -11,6 +11,7 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -48,15 +49,26 @@ export default function Navbar() {
       <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}>
         <FiHome className="nav-icon" /> Home
       </Link>
-      {user && (
-        <>
-          <Link to="/search" className={`nav-link ${location.pathname === '/search' ? 'active' : ''}`}>
-            <FiSearch className="nav-icon" /> Search Colleges
-          </Link>
-        </>
+      <Link to="/search" className={`nav-link ${location.pathname === '/search' ? 'active' : ''}`}>
+        <FiSearch className="nav-icon" /> Search Colleges
+      </Link>
+      {user && user.role !== 'admin' && (
+        <Link to="/dashboard" className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>
+          <FiUser className="nav-icon" /> Dashboard
+        </Link>
+      )}
+      <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
+        <FiUsers className="nav-icon" /> About Us
+      </Link>
+      {user && user.role === 'admin' && (
+        <Link to="/admin/dashboard" className={`nav-link ${location.pathname.startsWith('/admin') ? 'active' : ''}`}>
+          <FiSearch className="nav-icon" /> Admin Panel
+        </Link>
       )}
     </>
   );
+
+  // Render Navbar everywhere
 
   return (
     <nav className="navbar-container">

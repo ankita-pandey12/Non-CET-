@@ -21,6 +21,10 @@ const studentSchema = new mongoose.Schema(
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters'],
     },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
     phone: {
       type: String,
       default: '',
@@ -42,9 +46,15 @@ const studentSchema = new mongoose.Schema(
     },
     percentage: {
       type: Number,
-      required: [true, 'Percentage is required'],
-      min: [0, 'Percentage cannot be less than 0'],
-      max: [100, 'Percentage cannot exceed 100'],
+      required: true,
+      min: 0,
+      max: 100,
+    },
+    marksObtained: {
+      type: Number,
+    },
+    totalMarks: {
+      type: Number,
     },
     category: {
       type: String,
@@ -63,6 +73,12 @@ const studentSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
+    lastLogin: {
+      type: Date,
+      default: Date.now,
+    },
+    savedColleges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'College' }],
+    recentlyViewed: [{ type: mongoose.Schema.Types.ObjectId, ref: 'College' }],
   },
   {
     timestamps: true,

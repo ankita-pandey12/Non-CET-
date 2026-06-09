@@ -34,6 +34,15 @@ export function AuthProvider({ children }) {
 
   // On mount, check if token exists and validate
   useEffect(() => {
+    // Configure axios interceptor for all requests
+    axios.interceptors.request.use((config) => {
+      const currentToken = localStorage.getItem('cp_token');
+      if (currentToken) {
+        config.headers.Authorization = `Bearer ${currentToken}`;
+      }
+      return config;
+    });
+
     const checkAuth = async () => {
       const token = localStorage.getItem('cp_token');
       if (!token) {
@@ -41,9 +50,7 @@ export function AuthProvider({ children }) {
         return;
       }
       try {
-        const res = await axios.get(`${API}/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(`${API}/me`);
         dispatch({ type: 'AUTH_SUCCESS', payload: { user: res.data.data, token } });
       } catch {
         localStorage.removeItem('cp_token');
@@ -59,7 +66,7 @@ export function AuthProvider({ children }) {
       const res = await axios.post(`${API}/register`, formData);
       localStorage.setItem('cp_token', res.data.token);
       dispatch({ type: 'AUTH_SUCCESS', payload: { user: res.data.data, token: res.data.token } });
-      return { success: true };
+      return { success: true, user: res.data.data };
     } catch (err) {
       const msg = err.response?.data?.message || err.response?.data?.errors?.join(', ') || 'Registration failed';
       dispatch({ type: 'AUTH_FAIL', payload: msg });
@@ -73,7 +80,7 @@ export function AuthProvider({ children }) {
       const res = await axios.post(`${API}/login`, { email, password });
       localStorage.setItem('cp_token', res.data.token);
       dispatch({ type: 'AUTH_SUCCESS', payload: { user: res.data.data, token: res.data.token } });
-      return { success: true };
+      return { success: true, user: res.data.data };
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed';
       dispatch({ type: 'AUTH_FAIL', payload: msg });
@@ -86,10 +93,14 @@ export function AuthProvider({ children }) {
     dispatch({ type: 'LOGOUT' });
   };
 
+  const updateUser = (updatedUser) => {
+    dispatch({ type: 'AUTH_SUCCESS', payload: { user: updatedUser, token: state.token } });
+  };
+
   const clearError = () => dispatch({ type: 'CLEAR_ERROR' });
 
   return (
-    <AuthContext.Provider value={{ ...state, register, login, logout, clearError }}>
+    <AuthContext.Provider value={{ ...state, register, login, logout, updateUser, clearError }}>
       {children}
     </AuthContext.Provider>
   );

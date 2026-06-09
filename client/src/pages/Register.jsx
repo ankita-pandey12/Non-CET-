@@ -71,13 +71,20 @@ export default function Register() {
 
   const validateAccount = () => {
     const errs = {};
+    const nameRegex = /^[A-Za-z\s]+$/;
+    
     if (!accountData.name.trim()) errs.name = 'Name is required';
+    else if (!nameRegex.test(accountData.name.trim())) errs.name = 'Letters and spaces only';
+    
     if (!accountData.email.trim()) errs.email = 'Email is required';
     else if (!/^\S+@\S+\.\S+$/.test(accountData.email)) errs.email = 'Enter a valid email';
+    
     if (!accountData.phone.trim()) errs.phone = 'Phone number is required';
-    else if (!/^\d{10}$/.test(accountData.phone.trim())) errs.phone = 'Enter a valid 10-digit number';
+    else if (!/^\d{10}$/.test(accountData.phone.trim())) errs.phone = 'Enter exactly 10 digits';
+    
     if (!accountData.password) errs.password = 'Password is required';
     else if (accountData.password.length < 6) errs.password = 'Min 6 characters';
+    
     if (accountData.password !== accountData.confirmPassword) errs.confirmPassword = 'Passwords do not match';
     setAccountErrors(errs);
     return Object.keys(errs).length === 0;
@@ -103,6 +110,8 @@ export default function Register() {
       board: studentData.board,
       stream: studentData.stream,
       subjects: studentData.stream === 'Science' ? studentData.subjects : '',
+      marksObtained: parseFloat(studentData.marksObtained),
+      totalMarks: parseFloat(studentData.totalMarks),
       percentage: parseFloat(studentData.percentage),
       category: studentData.category,
       course: studentData.course,

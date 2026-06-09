@@ -4,6 +4,8 @@ const initialState = {
   board: '',
   stream: '',
   subjects: '',
+  marksObtained: '',
+  totalMarks: '',
   percentage: '',
   category: '',
   course: '',

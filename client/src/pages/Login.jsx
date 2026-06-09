@@ -26,7 +26,11 @@ export default function Login() {
 
     const result = await login(email.trim(), password);
     if (result.success) {
-      navigate('/dashboard');
+      if (result.user?.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     }
   };
 
