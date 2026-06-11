@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 import AdminDashboard from './pages/AdminDashboard';
 import AddCollegeForm from './pages/AddCollegeForm';
 import AboutUs from './pages/AboutUs';
+import Courses from './pages/Courses';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -40,6 +41,7 @@ function AppRoutes() {
           <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/search" element={<CollegeSearch />} />
+          <Route path="/courses" element={<Courses />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/admin/add-college" element={<AdminRoute><AddCollegeForm /></AdminRoute>} />

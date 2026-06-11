@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { FiUser, FiUsers, FiLogOut, FiChevronDown, FiMenu, FiX, FiSearch, FiHome } from 'react-icons/fi';
+import { FiUser, FiUsers, FiLogOut, FiChevronDown, FiMenu, FiX, FiSearch, FiHome, FiBookmark, FiBookOpen } from 'react-icons/fi';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
@@ -53,10 +53,13 @@ export default function Navbar() {
         <FiSearch className="nav-icon" /> Search Colleges
       </Link>
       {user && user.role !== 'admin' && (
-        <Link to="/dashboard" className={`nav-link ${location.pathname === '/dashboard' ? 'active' : ''}`}>
-          <FiUser className="nav-icon" /> Dashboard
+        <Link to="/dashboard?tab=saved" className={`nav-link ${location.pathname === '/dashboard' && new URLSearchParams(location.search).get('tab') === 'saved' ? 'active' : ''}`}>
+          <FiBookmark className="nav-icon" /> Saved Colleges
         </Link>
       )}
+      <Link to="/courses" className={`nav-link ${location.pathname === '/courses' ? 'active' : ''}`}>
+        <FiBookOpen className="nav-icon" /> Courses
+      </Link>
       <Link to="/about" className={`nav-link ${location.pathname === '/about' ? 'active' : ''}`}>
         <FiUsers className="nav-icon" /> About Us
       </Link>
@@ -88,8 +91,8 @@ export default function Navbar() {
         <div className="navbar-actions">
           {user ? (
             <div className="profile-dropdown-container" ref={dropdownRef}>
-              <button 
-                className="profile-btn" 
+              <button
+                className="profile-btn"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 <div className="avatar">
@@ -101,7 +104,7 @@ export default function Navbar() {
 
               <AnimatePresence>
                 {isDropdownOpen && (
-                  <motion.div 
+                  <motion.div
                     className="profile-dropdown"
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -131,7 +134,7 @@ export default function Navbar() {
           )}
 
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
             className="mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -143,7 +146,7 @@ export default function Navbar() {
       {/* Mobile Menu Dropdown */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
+          <motion.div
             className="mobile-menu"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}

@@ -3,6 +3,13 @@ const router = express.Router();
 const College = require('../models/College');
 const SearchLog = require('../models/SearchLog');
 
+// Helper to match courses dot-insensitively (e.g. BA and B.A)
+const makeDotInsensitivePattern = (str) => {
+  const clean = str.replace(/\./g, '');
+  if (!clean) return '';
+  return clean.split('').map(char => `${char.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\.?`).join('');
+};
+
 // ── GET /api/colleges — Search & filter colleges from MongoDB ─────────────────
 router.get('/', async (req, res) => {
   try {
@@ -54,8 +61,12 @@ router.get('/', async (req, res) => {
 
     // Course filter — search courses sub-documents
     if (course.trim()) {
-      const courseQ = course.trim();
-      filter['courses.course_name'] = { $regex: courseQ, $options: 'i' };
+      const pattern = makeDotInsensitivePattern(course.trim());
+      if (pattern) {
+        filter['courses.course_name'] = { $regex: pattern, $options: 'i' };
+      } else {
+        filter['courses.course_name'] = { $regex: course.trim(), $options: 'i' };
+      }
     }
 
     const total = await College.countDocuments(filter);
@@ -96,7 +107,11 @@ router.get('/', async (req, res) => {
 router.get('/cities', async (req, res) => {
   try {
     const cities = await College.distinct('city', { is_active: { $ne: false }, city: { $ne: '' } });
-    res.json({ success: true, data: cities.filter(Boolean).sort() });
+    const normalized = [...new Set(cities.map(c => {
+      const clean = c.trim().toLowerCase();
+      return clean.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }))];
+    res.json({ success: true, data: normalized.sort() });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to fetch cities', error: err.message });
   }
@@ -116,7 +131,20 @@ router.get('/types', async (req, res) => {
 router.get('/courses', async (req, res) => {
   try {
     const courseNames = await College.distinct('courses.course_name', { is_active: { $ne: false } });
-    res.json({ success: true, data: courseNames.filter(Boolean).sort() });
+    const normalized = [...new Set(courseNames.map(c => {
+      let name = c.trim();
+      const upper = name.toUpperCase().replace(/\./g, '');
+      if (upper === 'BA') return 'B.A';
+      if (upper === 'BSC') return 'B.Sc';
+      if (upper === 'BCOM') return 'B.Com';
+      if (upper === 'BTECH') return 'B.Tech';
+      if (upper === 'BE') return 'B.E';
+      if (upper === 'BARCH') return 'B.Arch';
+      if (upper === 'BBA') return 'BBA';
+      if (upper === 'BCA') return 'BCA';
+      return name;
+    }))];
+    res.json({ success: true, data: normalized.sort() });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Failed to fetch courses', error: err.message });
   }

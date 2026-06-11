@@ -60,7 +60,7 @@ const INIT = {
   address: '', city: '', district: '', pin_code: '',
   email: '', website: '', phone: '',
   naac_grade: '', naac_cgpa: '', regulatory_approvals: [],
-  streams: [], courses: [],
+  streams: [], courses: [], logo: '',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -149,6 +149,22 @@ export default function AddCollegeForm() {
     setForm(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: '' }));
   }, []);
+
+  // ── Logo Upload Handler ────────────────────────────────────────────────────
+  const handleLogoUpload = useCallback((e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        setToast({ type: 'error', msg: 'Logo image must be smaller than 2MB' });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        set('logo', reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, [set]);
 
   // ── Regulatory pill toggle ─────────────────────────────────────────────────
   const toggleRegulatory = useCallback((item) => {
@@ -337,6 +353,23 @@ export default function AddCollegeForm() {
                   </FormField>
                   <FormField label="Established Year" error={errors.established_year}>
                     <input id="established_year" className="form-input" type="number" placeholder="e.g. 1994" min="1800" max={new Date().getFullYear()} value={form.established_year} onChange={e => set('established_year', e.target.value)} />
+                  </FormField>
+                </div>
+                <div className="acf-grid acf-grid-1" style={{ marginTop: 20 }}>
+                  <FormField label="College Logo" hint="Upload a transparent PNG or JPG logo (Max 2MB)">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      {form.logo && (
+                        <div style={{ width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff' }}>
+                          <img src={form.logo} alt="Logo Preview" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                        </div>
+                      )}
+                      <input id="college_logo" className="form-input" type="file" accept="image/*" onChange={handleLogoUpload} style={{ flex: 1, padding: '10px' }} />
+                      {form.logo && (
+                        <button type="button" className="btn btn-ghost" onClick={() => set('logo', '')} style={{ color: 'var(--text-error)' }}>
+                          Remove
+                        </button>
+                      )}
+                    </div>
                   </FormField>
                 </div>
               </motion.div>

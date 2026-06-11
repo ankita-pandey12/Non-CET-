@@ -63,7 +63,13 @@ function CutoffPill({ cutoff }) {
 }
 
 function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(() => {
+    const searchParam = new URLSearchParams(window.location.search).get('search');
+    if (!searchParam) return false;
+    const searchNorm = searchParam.trim().toLowerCase();
+    return college.college_name.toLowerCase().includes(searchNorm) || 
+           (college.college_short_name && college.college_short_name.toLowerCase().includes(searchNorm));
+  });
   const [activeTab, setActiveTab] = useState('details'); // 'details' or 'chat'
   
   // Chat state
@@ -145,7 +151,7 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
   const toggleExpand = () => {
     const newExpanded = !expanded;
     setExpanded(newExpanded);
-    if (newExpanded && user) {
+    if (newExpanded && user && user.role === 'student') {
       axios.post(`http://localhost:5000/api/students/${user._id}/view-college`, { collegeId: college._id })
         .catch(err => console.error(err));
     }
@@ -153,7 +159,7 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
 
   const handleSaveToggle = async (e) => {
     e.stopPropagation();
-    if (!user) return;
+    if (!user || user.role !== 'student') return;
     try {
       const res = await axios.post(`http://localhost:5000/api/students/${user._id}/save-college`, { collegeId: college._id });
       if (res.data.success) {
@@ -172,8 +178,13 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
 
         <div className="college-card-body">
           {/* Top row: name + badges */}
-          <div className="college-card-top">
-            <div className="college-card-info">
+          <div className="college-card-top" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {college.logo && (
+              <div className="college-logo-container" style={{ width: '80px', height: '80px', borderRadius: '12px', overflow: 'hidden', flexShrink: 0, border: '1px solid var(--border-light, #e2e8f0)', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                <img src={college.logo} alt={`${college.college_short_name || 'College'} Logo`} style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '6px' }} />
+              </div>
+            )}
+            <div className="college-card-info" style={{ flex: 1 }}>
               <h3 className="college-name">{college.college_name}</h3>
               {college.college_short_name && (
                 <span className="college-short-name">{college.college_short_name}</span>
@@ -186,16 +197,6 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
                   <FiStar size={12} />
                   NAAC {college.naac_grade}
                 </span>
-              )}
-              {user && (
-                <button 
-                  onClick={handleSaveToggle} 
-                  className="college-save-btn" 
-                  aria-label="Save college"
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px', marginLeft: 'auto', display: 'flex', alignItems: 'center' }}
-                >
-                  <FiBookmark size={20} fill={isSaved ? 'var(--accent-orange)' : 'none'} color={isSaved ? 'var(--accent-orange)' : 'var(--text-muted)'} />
-                </button>
               )}
             </div>
           </div>
@@ -223,6 +224,16 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
           </div>
 
           {/* Cutoff pills removed from UI (handled by AI) */}
+
+          {(!user || user.role === 'student') && (
+            <button 
+              onClick={handleSaveToggle} 
+              className="college-save-btn" 
+              aria-label="Save college"
+            >
+              <FiBookmark size={18} fill={isSaved ? '#ea580c' : 'none'} color={isSaved ? '#ea580c' : '#64748b'} />
+            </button>
+          )}
 
           {/* Expand toggle */}
           <button className="college-expand-btn" aria-label="Toggle details">
@@ -380,7 +391,9 @@ export default function CollegeSearch() {
   const [totalPages, setTotalPages] = useState(1);
 
   // Filter state
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => {
+    return new URLSearchParams(window.location.search).get('search') || '';
+  });
   const [city, setCity] = useState('');
   const [course, setCourse] = useState('');
   const [collegeType, setCollegeType] = useState('');
@@ -413,8 +426,8 @@ export default function CollegeSearch() {
     };
     fetchOptions();
 
-    // Fetch user's saved colleges
-    if (user?._id) {
+    // Fetch user's saved colleges (only for students)
+    if (user?._id && user.role === 'student') {
       axios.get(`http://localhost:5000/api/students/${user._id}/dashboard-data`)
         .then(res => {
           if (res.data.success && res.data.data.savedColleges) {
@@ -491,18 +504,6 @@ export default function CollegeSearch() {
             <Link to="/dashboard" className="search-back-btn">
               <FiArrowLeft size={18} />
             </Link>
-            <div className="logo">
-              <div className="logo-icon">🎓</div>
-              <span className="logo-text">College Predictor</span>
-            </div>
-          </div>
-          <div className="search-header-right">
-            {user && (
-              <div className="search-user-pill">
-                <div className="search-user-avatar">{user.name?.charAt(0).toUpperCase()}</div>
-                <span className="search-user-name">{user.name?.split(' ')[0]}</span>
-              </div>
-            )}
           </div>
         </motion.header>
 

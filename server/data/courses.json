@@ -1,0 +1,119 @@
+[
+  {
+    "name": "B.Tech",
+    "category": "Engineering & Technology",
+    "duration": 4,
+    "slug": "btech",
+    "eligibility": "10+2 with Physics, Chemistry & Maths",
+    "entranceExams": ["JEE Main", "MHT-CET", "JEE Advanced"],
+    "careerPaths": ["Software Engineer", "Systems Analyst", "Civil Engineer"]
+  },
+  {
+    "name": "BE (Bachelor of Engineering)",
+    "category": "Engineering & Technology",
+    "duration": 4,
+    "slug": "be-bachelor-of-engineering",
+    "eligibility": "10+2 with Physics, Chemistry & Maths",
+    "entranceExams": ["JEE Main", "MHT-CET"],
+    "careerPaths": ["Hardware Engineer", "Production Manager", "Mechanical Engineer"]
+  },
+  {
+    "name": "BCA",
+    "category": "Computer Applications & IT",
+    "duration": 3,
+    "slug": "bca",
+    "eligibility": "10+2 with Mathematics/IT as a subject",
+    "entranceExams": ["MAH BCA CET", "College Entrance Tests"],
+    "careerPaths": ["Web Developer", "Database Administrator", "System Administrator"]
+  },
+  {
+    "name": "B.Sc",
+    "category": "Science",
+    "duration": 3,
+    "slug": "bsc",
+    "eligibility": "10+2 with Science stream (PCM/PCB)",
+    "entranceExams": ["CUET", "Merit-based"],
+    "careerPaths": ["Research Scientist", "Lab Technician", "Data Analyst"]
+  },
+  {
+    "name": "B.Com",
+    "category": "Commerce",
+    "duration": 3,
+    "slug": "bcom",
+    "eligibility": "10+2 with Commerce/Arts/Science stream",
+    "entranceExams": ["Merit-based", "CUET"],
+    "careerPaths": ["Accountant", "Financial Analyst", "Auditor"]
+  },
+  {
+    "name": "BBA",
+    "category": "Management & Business",
+    "duration": 3,
+    "slug": "bba",
+    "eligibility": "10+2 with minimum 50% marks",
+    "entranceExams": ["MAH BBA CET", "SET", "NPAT"],
+    "careerPaths": ["Business Analyst", "HR Coordinator", "Marketing Executive"]
+  },
+  {
+    "name": "MBBS",
+    "category": "Medical & Health Sciences",
+    "duration": 5.5,
+    "slug": "mbbs",
+    "eligibility": "10+2 with Physics, Chemistry & Biology",
+    "entranceExams": ["NEET UG"],
+    "careerPaths": ["Medical Doctor", "General Surgeon", "Health Consultant"]
+  },
+  {
+    "name": "BDS",
+    "category": "Medical & Health Sciences",
+    "duration": 5,
+    "slug": "bds",
+    "eligibility": "10+2 with Physics, Chemistry & Biology",
+    "entranceExams": ["NEET UG"],
+    "careerPaths": ["Dentist", "Orthodontist", "Dental Surgeon"]
+  },
+  {
+    "name": "B.Pharm",
+    "category": "Pharmacy & Healthcare",
+    "duration": 4,
+    "slug": "bpharm",
+    "eligibility": "10+2 with PCM/PCB",
+    "entranceExams": ["MHT-CET"],
+    "careerPaths": ["Pharmacist", "Drug Inspector", "Clinical Researcher"]
+  },
+  {
+    "name": "BA",
+    "category": "Arts & Humanities",
+    "duration": 3,
+    "slug": "ba",
+    "eligibility": "10+2 in any stream",
+    "entranceExams": ["CUET", "Merit-based"],
+    "careerPaths": ["Content Writer", "Journalist", "HR Manager"]
+  },
+  {
+    "name": "LLB",
+    "category": "Law",
+    "duration": 3,
+    "slug": "llb",
+    "eligibility": "Graduation in any stream with minimum 45% marks",
+    "entranceExams": ["MH CET Law", "CLAT"],
+    "careerPaths": ["Advocate", "Legal Advisor", "Corporate Lawyer"]
+  },
+  {
+    "name": "B.Arch",
+    "category": "Architecture & Planning",
+    "duration": 5,
+    "slug": "barch",
+    "eligibility": "10+2 with PCM and minimum 50% marks",
+    "entranceExams": ["NATA", "JEE Main Paper 2"],
+    "careerPaths": ["Architect", "Interior Designer", "Urban Planner"]
+  },
+  {
+    "name": "B.Sc Agriculture",
+    "category": "Agriculture & Allied Sciences",
+    "duration": 4,
+    "slug": "bsc-agriculture",
+    "eligibility": "10+2 with Physics, Chemistry & Biology/Maths",
+    "entranceExams": ["MHT-CET", "ICAR AIEEA"],
+    "careerPaths": ["Agriculture Officer", "Farm Manager", "Food Inspector"]
+  }
+]

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiLogOut, FiUser, FiBook, FiAward, FiMail, FiPhone, FiSearch, FiArrowRight, FiClock, FiMapPin, FiBookmark, FiEdit2, FiSave, FiX } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
@@ -15,12 +15,22 @@ const fadeUp = (delay = 0) => ({
 export default function Dashboard() {
   const { user, logout, updateUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [dashboardData, setDashboardData] = useState(null);
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(() => {
+    return new URLSearchParams(window.location.search).get('tab') || 'profile';
+  });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const tab = new URLSearchParams(location.search).get('tab');
+    if (tab) {
+      setActiveTab(tab);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     if (user?._id) {
@@ -77,10 +87,10 @@ export default function Dashboard() {
   const handleMarksChange = (e) => {
     const { name, value } = e.target;
     const updatedForm = { ...editForm, [name]: value };
-    
+
     const mo = name === 'marksObtained' ? parseFloat(value) : parseFloat(editForm.marksObtained);
     const tm = name === 'totalMarks' ? parseFloat(value) : parseFloat(editForm.totalMarks);
-    
+
     if (!isNaN(mo) && !isNaN(tm) && tm > 0 && mo >= 0 && mo <= tm) {
       updatedForm.percentage = ((mo / tm) * 100).toFixed(2);
     } else {
@@ -101,7 +111,7 @@ export default function Dashboard() {
     let eType = 'Merit-based';
     if (cnf?.type === 'fixed') eType = cnf.fixedExam;
     else if (cnf?.type === 'select') eType = cnf.options[0].value;
-    
+
     setEditForm({ ...editForm, course: newCourse, examType: eType, examScore: '' });
   };
 
@@ -110,7 +120,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-page" style={{ padding: '2rem 5%', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '30px', minHeight: '80vh', flexWrap: 'wrap' }}>
-      
+
       {/* Sidebar */}
       <motion.div className="dash-sidebar" {...fadeUp(0)} style={{ width: '280px', flexGrow: 1, maxWidth: '350px', background: 'var(--bg-card)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-default)', display: 'flex', flexDirection: 'column', gap: '12px', height: 'fit-content' }}>
         <div className="dash-avatar" style={{ marginBottom: '16px', alignSelf: 'center' }}>
@@ -118,22 +128,22 @@ export default function Dashboard() {
         </div>
         <h3 style={{ textAlign: 'center', marginBottom: '24px', color: 'var(--text-primary)' }}>{user.name}</h3>
 
-        <button 
-          onClick={() => { setActiveTab('profile'); setIsEditing(false); }} 
+        <button
+          onClick={() => { setActiveTab('profile'); setIsEditing(false); }}
           style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', border: 'none', background: activeTab === 'profile' ? 'var(--accent-orange)' : 'transparent', color: activeTab === 'profile' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', fontSize: '1rem', fontWeight: '500', transition: 'all 0.2s' }}
         >
           <FiUser size={18} /> My Profile
         </button>
 
-        <button 
-          onClick={() => { setActiveTab('recent'); setIsEditing(false); }} 
+        <button
+          onClick={() => { setActiveTab('recent'); setIsEditing(false); }}
           style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', border: 'none', background: activeTab === 'recent' ? 'var(--accent-orange)' : 'transparent', color: activeTab === 'recent' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', fontSize: '1rem', fontWeight: '500', transition: 'all 0.2s' }}
         >
           <FiClock size={18} /> Recently Viewed
         </button>
 
-        <button 
-          onClick={() => { setActiveTab('saved'); setIsEditing(false); }} 
+        <button
+          onClick={() => { setActiveTab('saved'); setIsEditing(false); }}
           style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', border: 'none', background: activeTab === 'saved' ? 'var(--accent-orange)' : 'transparent', color: activeTab === 'saved' ? '#fff' : 'var(--text-secondary)', cursor: 'pointer', fontSize: '1rem', fontWeight: '500', transition: 'all 0.2s' }}
         >
           <FiBookmark size={18} /> Saved Colleges
@@ -143,11 +153,11 @@ export default function Dashboard() {
       {/* Main Content Area */}
       <div className="dash-content" style={{ flexBasis: '60%', flexGrow: 999, display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <AnimatePresence mode="wait">
-          
+
           {/* PROFILE TAB */}
           {activeTab === 'profile' && (
             <motion.div key="profile" {...fadeUp(0.1)} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '-10px' }}>
                 {!isEditing ? (
                   <button onClick={handleEditClick} className="btn btn-outline" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -172,7 +182,7 @@ export default function Dashboard() {
                     <h2 style={{ fontSize: '1.4rem' }}>Personal Info</h2>
                   </div>
                   <div className="dash-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
-                    
+
                     <div className="dash-item">
                       <span className="dash-label">Full Name</span>
                       {isEditing ? (
@@ -181,7 +191,7 @@ export default function Dashboard() {
                         <span className="dash-value">{user.name}</span>
                       )}
                     </div>
-                    
+
                     <div className="dash-item">
                       <span className="dash-label">Email</span>
                       {isEditing ? (
@@ -223,7 +233,7 @@ export default function Dashboard() {
                     <h2 style={{ fontSize: '1.4rem' }}>Academic Details</h2>
                   </div>
                   <div className="dash-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
-                    
+
                     <div className="dash-item">
                       <span className="dash-label">Board</span>
                       {isEditing ? (
@@ -289,7 +299,7 @@ export default function Dashboard() {
                     <h2 style={{ fontSize: '1.4rem' }}>Course & Exam</h2>
                   </div>
                   <div className="dash-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
-                    
+
                     <div className="dash-item">
                       <span className="dash-label">Preferred Course</span>
                       {isEditing ? (
@@ -360,7 +370,7 @@ export default function Dashboard() {
               <div className="mini-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginTop: '16px' }}>
                 {dashboardData?.recentlyViewed?.length > 0 ? (
                   dashboardData.recentlyViewed.map(college => (
-                    <Link to="/search" key={`viewed-${college._id}`} className="mini-college-card" style={{ textDecoration: 'none', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', display: 'block', transition: 'all 0.2s' }}>
+                    <Link to={`/search?search=${encodeURIComponent(college.college_name)}`} key={`viewed-${college._id}`} className="mini-college-card" style={{ textDecoration: 'none', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', display: 'block', transition: 'all 0.2s' }}>
                       <h4 style={{ color: 'var(--text-primary)', margin: '0 0 8px 0', fontSize: '1.05rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{college.college_name}</h4>
                       <div style={{ display: 'flex', gap: '12px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiMapPin size={12} /> {college.city}</span>
@@ -385,7 +395,7 @@ export default function Dashboard() {
               <div className="mini-card-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginTop: '16px' }}>
                 {dashboardData?.savedColleges?.length > 0 ? (
                   dashboardData.savedColleges.map(college => (
-                    <Link to="/search" key={`saved-${college._id}`} className="mini-college-card" style={{ textDecoration: 'none', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', display: 'block', transition: 'all 0.2s' }}>
+                    <Link to={`/search?search=${encodeURIComponent(college.college_name)}`} key={`saved-${college._id}`} className="mini-college-card" style={{ textDecoration: 'none', background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '16px', display: 'block', transition: 'all 0.2s' }}>
                       <h4 style={{ color: 'var(--text-primary)', margin: '0 0 8px 0', fontSize: '1.05rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{college.college_name}</h4>
                       <div style={{ display: 'flex', gap: '12px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FiMapPin size={12} /> {college.city}</span>

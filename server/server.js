@@ -8,6 +8,7 @@ const collegeRoutes = require('./routes/colleges');
 const chatRoutes = require('./routes/chat');
 const adminRoutes = require('./routes/admin');
 const collegeAdminRoutes = require('./routes/collegeAdmin');
+const courseRoutes = require('./routes/courses');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/colleges', collegeRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/courses', courseRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin/colleges', collegeAdminRoutes);
 

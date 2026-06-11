@@ -37,6 +37,7 @@ const collegeSchema = new mongoose.Schema(
     college_short_name: { type: String, trim: true, default: '' },
     dte_code:           { type: String, trim: true, default: '' },
     established_year:   { type: Number, default: null },
+    logo:               { type: String, default: '' },
 
     // ── 2. Affiliation & Type ────────────────────────────────────
     university_name: {
