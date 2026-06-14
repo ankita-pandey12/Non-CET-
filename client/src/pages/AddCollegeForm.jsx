@@ -55,7 +55,7 @@ const API = 'http://localhost:5000/api/admin/colleges';
 // Initial form state
 // ─────────────────────────────────────────────────────────────────────────────
 const INIT = {
-  college_name: '', college_short_name: '', dte_code: '', established_year: '',
+  college_name: '', college_short_name: '', established_year: '',
   university_name: '', college_type: '', minority_status: 'Non-minority', minority_community: '',
   address: '', city: '', district: '', pin_code: '',
   email: '', website: '', phone: '',
@@ -347,9 +347,6 @@ export default function AddCollegeForm() {
                   </FormField>
                   <FormField label="Short Name / Abbreviation" error={errors.short_name}>
                     <input id="college_short_name" className="form-input" type="text" placeholder="e.g. COEP" value={form.college_short_name} onChange={e => set('college_short_name', e.target.value)} />
-                  </FormField>
-                  <FormField label="DTE College Code" error={errors.dte_code} hint="As per DTE Maharashtra records">
-                    <input id="dte_code" className="form-input" type="text" placeholder="e.g. 1461" value={form.dte_code} onChange={e => set('dte_code', e.target.value)} />
                   </FormField>
                   <FormField label="Established Year" error={errors.established_year}>
                     <input id="established_year" className="form-input" type="number" placeholder="e.g. 1994" min="1800" max={new Date().getFullYear()} value={form.established_year} onChange={e => set('established_year', e.target.value)} />

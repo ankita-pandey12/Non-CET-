@@ -14,17 +14,17 @@ const makeDotInsensitivePattern = (str) => {
 router.get('/', async (req, res) => {
   try {
     const {
-      search     = '',
-      city       = '',
-      course     = '',
+      search = '',
+      city = '',
+      course = '',
       collegeType = '',
-      category   = '',
-      streams    = '',
-      page       = 1,
-      limit      = 20,
+      category = '',
+      streams = '',
+      page = 1,
+      limit = 20,
     } = req.query;
 
-    const pageNum  = Math.max(1, parseInt(page)  || 1);
+    const pageNum = Math.max(1, parseInt(page) || 1);
     const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 20));
 
     // Build the MongoDB filter
@@ -36,22 +36,28 @@ router.get('/', async (req, res) => {
       SearchLog.create({ query: q }).catch(err => console.error('Search log error:', err));
       const re = { $regex: q, $options: 'i' };
       filter.$or = [
-        { college_name:       re },
+        { college_name: re },
         { college_short_name: re },
-        { university_name:    re },
-        { city:               re },
-        { remarks:            re },
+        { university_name: re },
+        { city: re },
+        { remarks: re },
       ];
     }
 
     // City filter (case-insensitive exact)
     if (city.trim()) {
-      filter.city = { $regex: `^${city.trim()}$`, $options: 'i' };
+      const cities = city.split(',').map(c => c.trim()).filter(Boolean);
+      if (cities.length > 0) {
+        filter.city = { $in: cities.map(c => new RegExp(`^${c}$`, 'i')) };
+      }
     }
 
     // College type filter
     if (collegeType.trim()) {
-      filter.college_type = { $regex: `^${collegeType.trim()}$`, $options: 'i' };
+      const types = collegeType.split(',').map(c => c.trim()).filter(Boolean);
+      if (types.length > 0) {
+        filter.college_type = { $in: types.map(t => new RegExp(`^${t}$`, 'i')) };
+      }
     }
 
     // Stream filter (admin-tagged streams array)
@@ -61,11 +67,14 @@ router.get('/', async (req, res) => {
 
     // Course filter — search courses sub-documents
     if (course.trim()) {
-      const pattern = makeDotInsensitivePattern(course.trim());
-      if (pattern) {
-        filter['courses.course_name'] = { $regex: pattern, $options: 'i' };
-      } else {
-        filter['courses.course_name'] = { $regex: course.trim(), $options: 'i' };
+      const courses = course.split(',').map(c => c.trim()).filter(Boolean);
+      if (courses.length > 0) {
+        filter['courses.course_name'] = {
+          $in: courses.map(c => {
+            const pattern = makeDotInsensitivePattern(c);
+            return new RegExp(pattern || c, 'i');
+          })
+        };
       }
     }
 
@@ -164,8 +173,8 @@ router.get('/streams', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const college = await College.findByIdAndUpdate(
-      req.params.id, 
-      { $inc: { views: 1 } }, 
+      req.params.id,
+      { $inc: { views: 1 } },
       { new: true }
     ).select('-__v');
     if (!college) {

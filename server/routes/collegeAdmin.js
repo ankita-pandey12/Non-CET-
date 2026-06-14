@@ -69,7 +69,22 @@ router.get('/:id', adminAuth, async (req, res) => {
 // ── PUT /api/admin/colleges/:id — Update a college ───────────────────────────
 router.put('/:id', adminAuth, async (req, res) => {
   try {
-    const college = await College.findByIdAndUpdate(req.params.id, req.body, {
+    const data = req.body;
+
+    // Map courses from frontend format ({stream, course}) to Mongoose schema format
+    if (data.courses) {
+      data.courses = data.courses.map((c) => ({
+        course_name:     c.course  || c.course_name || '',
+        stream_category: c.stream  || c.stream_category || '',
+        specialization:  c.specialization || '',
+        admission_type:  c.admission_type || '',
+        duration_years:  c.duration_years || null,
+        degree_type:     c.degree_type || '',
+        total_seats:     c.total_seats || null,
+      }));
+    }
+
+    const college = await College.findByIdAndUpdate(req.params.id, data, {
       new: true,
       runValidators: true,
     });

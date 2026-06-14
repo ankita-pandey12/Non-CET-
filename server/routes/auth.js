@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const Student = require('../models/Student');
+const { sendOtp, verifyOtp } = require('../utils/otpService');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'college-predictor-secret-key-2026';
@@ -9,6 +10,54 @@ const JWT_SECRET = process.env.JWT_SECRET || 'college-predictor-secret-key-2026'
 function signToken(id) {
   return jwt.sign({ id }, JWT_SECRET, { expiresIn: '7d' });
 }
+
+// POST /api/auth/send-otp — Send verification code
+router.post('/send-otp', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required' });
+    }
+
+    // Check if email already exists
+    const existing = await Student.findOne({ email: email.trim().toLowerCase() });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: 'An account with this email already exists. Please login instead.',
+      });
+    }
+
+    const result = await sendOtp(email.trim().toLowerCase());
+    if (result.success) {
+      return res.json({ success: true, message: result.message });
+    } else {
+      return res.status(400).json({ success: false, message: result.message, error: result.error });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+});
+
+// POST /api/auth/verify-otp — Verify verification code
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    if (!email || !code) {
+      return res.status(400).json({ success: false, message: 'Email and OTP code are required' });
+    }
+
+    const result = await verifyOtp(email.trim().toLowerCase(), code.trim());
+    if (result.success) {
+      return res.json({ success: true, message: result.message });
+    } else {
+      return res.status(400).json({ success: false, message: result.message });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error', error: err.message });
+  }
+});
+
 
 // POST /api/auth/register — Register new student
 router.post('/register', async (req, res) => {

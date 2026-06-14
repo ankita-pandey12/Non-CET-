@@ -241,7 +241,12 @@ export default function Dashboard() {
                           <option value="Maharashtra State Board">Maharashtra State Board</option>
                           <option value="CBSE">CBSE</option>
                           <option value="ICSE">ICSE</option>
-                          <option value="Other">Other</option>
+                          <option value="Karnataka State Board">Karnataka State Board</option>
+                          <option value="Gujarat State Board">Gujarat State Board</option>
+                          <option value="Goa State Board">Goa State Board</option>
+                          <option value="Madhya Pradesh State Board">Madhya Pradesh State Board</option>
+                          <option value="Rajasthan State Board">Rajasthan State Board</option>
+                          <option value="Other State Board">Other State Board</option>
                         </select>
                       ) : (
                         <span className="dash-value">{user.board}</span>

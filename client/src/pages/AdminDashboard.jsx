@@ -74,6 +74,17 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleRemoveAdmin = async (id) => {
+    if (!window.confirm('Are you sure you want to remove admin privileges from this student?')) return;
+    try {
+      await axios.put(`http://localhost:5000/api/admin/students/${id}/remove-admin`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      setStudents(students.map(s => s._id === id ? { ...s, isAdmin: false } : s));
+    } catch (err) {
+      console.error('Failed to remove admin privileges', err);
+      alert('Failed to remove admin privileges. Ensure you have the correct permissions.');
+    }
+  };
+
   const handleDeleteCollege = async (id) => {
     if (!window.confirm('Are you sure you want to delete this college? This action cannot be undone.')) return;
     try {
@@ -329,21 +340,6 @@ export default function AdminDashboard() {
                   </div>
                 </motion.div>
 
-                <motion.div className="dash-card" {...fadeUp(0.7)}>
-                  <div className="dash-card-header">
-                    <FiBookOpen size={20} />
-                    <h2>Most Viewed Colleges</h2>
-                  </div>
-                  <div style={{ marginTop: '1rem' }}>
-                    {(stats.topViewedColleges || []).map((college, i) => (
-                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border-subtle)' }}>
-                        <span style={{ color: 'var(--text-primary)', fontWeight: '500', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '70%' }}>{college.college_name}</span>
-                        <span style={{ background: 'rgba(249,115,22,0.1)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem', color: 'var(--accent-orange)', fontWeight: '600' }}>{college.views || 0} views</span>
-                      </div>
-                    ))}
-                    {!(stats.topViewedColleges && stats.topViewedColleges.length > 0) && <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textAlign: 'center', padding: '20px' }}>No views yet</p>}
-                  </div>
-                </motion.div>
               </div>
             </div>
           </motion.div>
@@ -384,9 +380,19 @@ export default function AdminDashboard() {
                       </td>
                       <td style={{ padding: '16px 8px', textAlign: 'right' }}>
                         {student.isAdmin ? (
-                          <span style={{ padding: '4px 10px', background: 'rgba(249, 115, 22, 0.1)', color: 'var(--accent-violet)', borderRadius: 'var(--r-sm)', fontSize: '0.75rem', fontWeight: '600' }}>
-                            <FiShield style={{ marginRight: '4px', verticalAlign: 'text-top' }} /> Admin
-                          </span>
+                          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <span style={{ padding: '4px 10px', background: 'rgba(249, 115, 22, 0.1)', color: 'var(--accent-violet)', borderRadius: 'var(--r-sm)', fontSize: '0.75rem', fontWeight: '600' }}>
+                              <FiShield style={{ marginRight: '4px', verticalAlign: 'text-top' }} /> Admin
+                            </span>
+                            <button
+                              onClick={() => handleRemoveAdmin(student._id)}
+                              style={{ background: 'var(--error)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: 'var(--r-md)', fontSize: '0.8rem', fontWeight: '600', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 2px 10px rgba(239, 68, 68, 0.2)' }}
+                              onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+                              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+                            >
+                              Remove Admin
+                            </button>
+                          </div>
                         ) : (
                           <button
                             onClick={() => handleMakeAdmin(student._id)}

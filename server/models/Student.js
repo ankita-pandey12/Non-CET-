@@ -32,7 +32,17 @@ const studentSchema = new mongoose.Schema(
     board: {
       type: String,
       required: [true, 'Board is required'],
-      enum: ['CBSE', 'ICSE', 'Maharashtra State Board', 'Other State Board'],
+      enum: [
+        'CBSE',
+        'ICSE',
+        'Maharashtra State Board',
+        'Karnataka State Board',
+        'Gujarat State Board',
+        'Goa State Board',
+        'Madhya Pradesh State Board',
+        'Rajasthan State Board',
+        'Other State Board'
+      ],
     },
     stream: {
       type: String,

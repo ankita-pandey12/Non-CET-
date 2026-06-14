@@ -13,7 +13,7 @@ export default function AboutUs() {
       {/* Hero Section */}
       <motion.div style={{ textAlign: 'center', marginBottom: '5rem' }} {...fadeUp(0)}>
         <h1 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1rem', background: 'linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-amber) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          About CollegePredictor
+          About Vidyarthi Mitra
         </h1>
         <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
           We are on a mission to simplify the college admission journey for thousands of students across the country. Make informed decisions with confidence.
@@ -46,7 +46,7 @@ export default function AboutUs() {
             Choosing the right college is one of the most critical decisions in a student's life. We realized that information about colleges, streams, and cutoffs was scattered and hard to decipher.
           </p>
           <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
-            CollegePredictor brings all of this data under one beautifully designed roof. Our intelligent algorithms match your academic profile with historical trends to predict your best options, saving you countless hours of research.
+            Vidyarthi Mitra brings all of this data under one beautifully designed roof. Our intelligent algorithms match your academic profile with historical trends to predict your best options, saving you countless hours of research.
           </p>
         </motion.div>
         

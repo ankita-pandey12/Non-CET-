@@ -1,4 +1,4 @@
-/* ===== DESIGN SYSTEM — College Predictor ===== */
+/* ===== DESIGN SYSTEM — Vidyarthi Mitra ===== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
@@ -40,6 +40,7 @@
   --info-bg: rgba(59, 130, 246, 0.08);
   --info-border: rgba(59, 130, 246, 0.2);
   --warning: #f59e0b;
+  --error: #ef4444;
 
   /* Radius */
   --r-sm: 8px;
@@ -1414,6 +1415,8 @@ body {
 .search-hero {
   text-align: center;
   margin-bottom: 40px;
+  position: relative;
+  z-index: 20;
 }
 
 .search-hero-title {
@@ -1550,7 +1553,7 @@ body {
 
 /* Filter panel */
 .filter-panel {
-  overflow: hidden;
+  /* overflow: hidden; (handled dynamically via inline style) */
 }
 
 .filter-panel-inner {
@@ -1559,7 +1562,7 @@ body {
   gap: 16px;
   max-width: 800px;
   margin: 0 auto;
-  padding: 24px 0 12px;
+  padding: 24px 0 40px; /* Increased bottom padding from 12px to 40px to prevent overlap with clear button */
   position: relative;
 }
 
@@ -1919,17 +1922,30 @@ body {
 
 /* Save button */
 .college-save-btn {
-  position: absolute; right: 76px; top: 50%; transform: translateY(-50%);
+  position: absolute;
+  right: 76px;
+  top: 50%;
+  transform: translateY(-50%);
   background: #f6f3f3;
   border: 1.5px solid #e2e8f0;
-  border-radius: 50%; width: 36px; height: 36px;
-  display: flex; align-items: center; justify-content: center;
-  color: #64748b; cursor: pointer;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
   z-index: 5;
 }
-.college-save-btn:hover { background: rgba(249,115,22,0.05); border-color: rgba(249,115,22,0.3); color: #ea580c; }
+
+.college-save-btn:hover {
+  background: rgba(249, 115, 22, 0.05);
+  border-color: rgba(249, 115, 22, 0.3);
+  color: #ea580c;
+}
 
 /* Expand button */
 .college-expand-btn {
@@ -3343,5 +3359,319 @@ body {
 
   .admin-main {
     padding: 24px 20px;
+  }
+}
+
+/* ===== REDESIGNED REGISTER PAGE (CENTERED SAAS CARD) ===== */
+.register-page-split {
+  display: flex;
+  min-height: calc(100vh - 72px);
+  width: 100%;
+  background: var(--bg-deep);
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.register-saas-container {
+  display: flex;
+  width: 100%;
+  max-width: 1080px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 24px;
+  box-shadow: 0 15px 50px -15px rgba(0, 0, 0, 0.05),
+    0 25px 80px -25px rgba(249, 115, 22, 0.12);
+  overflow: hidden;
+  min-height: 580px;
+}
+
+.register-card-left {
+  flex: 4;
+  position: relative;
+  background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=1200');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  color: #ffffff;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.register-card-left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(249, 115, 22, 0.45) 100%);
+  z-index: -1;
+}
+
+.register-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.register-brand-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.register-brand-text {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.register-left-content {
+  max-width: 420px;
+  margin: auto 0;
+}
+
+.register-headline {
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+  color: #ffffff;
+}
+
+.register-supporting {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+
+.register-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+}
+
+.register-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.register-feature-check {
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.register-card-right {
+  flex: 6;
+  background: #ffffff;
+  padding: 30px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+.register-card-right .auth-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--text-error);
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.register-card-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.register-card-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  margin-bottom: 16px;
+}
+
+.register-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.register-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.register-form-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.register-form-input {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--r-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.register-form-input:hover {
+  border-color: rgba(249, 115, 22, 0.3);
+  background: var(--bg-input-hover);
+}
+
+.register-form-input:focus {
+  background: #ffffff;
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+
+.register-form-group.has-error .register-form-input {
+  border-color: var(--border-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.register-btn-primary {
+  width: 100%;
+  background: var(--accent-gradient);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+}
+
+.register-btn-primary:hover {
+  box-shadow: var(--shadow-btn-hover);
+  transform: translateY(-1px);
+}
+
+.register-btn-primary:active {
+  transform: translateY(0);
+}
+
+.register-card-footer {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.register-card-footer a {
+  color: var(--accent-orange);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.register-card-footer a:hover {
+  color: var(--accent-amber);
+  text-decoration: underline;
+}
+
+.password-requirements {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: var(--bg-deep);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  box-sizing: border-box;
+}
+
+.password-requirement-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.password-requirement-item.valid {
+  color: var(--success);
+}
+
+/* Responsive Styles */
+@media (max-width: 900px) {
+  .register-page-split {
+    padding: 20px 10px;
+  }
+
+  .register-saas-container {
+    flex-direction: column;
+    min-height: auto;
+    border-radius: 20px;
+  }
+
+  .register-card-left {
+    display: none;
+  }
+
+  .register-card-right {
+    padding: 30px 20px;
   }
 }

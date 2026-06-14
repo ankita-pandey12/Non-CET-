@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FiSearch, FiMapPin, FiBook, FiFilter, FiArrowLeft, FiChevronDown,
+  FiSearch, FiMapPin, FiBook, FiFilter, FiChevronDown,
   FiChevronLeft, FiChevronRight, FiGlobe, FiAward, FiUsers,
   FiX, FiStar, FiCalendar, FiHome, FiExternalLink, FiMail,
   FiTrendingUp, FiLayers, FiZap, FiMessageSquare, FiSend, FiBookmark
@@ -67,11 +67,11 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
     const searchParam = new URLSearchParams(window.location.search).get('search');
     if (!searchParam) return false;
     const searchNorm = searchParam.trim().toLowerCase();
-    return college.college_name.toLowerCase().includes(searchNorm) || 
-           (college.college_short_name && college.college_short_name.toLowerCase().includes(searchNorm));
+    return college.college_name.toLowerCase().includes(searchNorm) ||
+      (college.college_short_name && college.college_short_name.toLowerCase().includes(searchNorm));
   });
   const [activeTab, setActiveTab] = useState('details'); // 'details' or 'chat'
-  
+
   // Chat state
   const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState('');
@@ -93,6 +93,8 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
     setChatInput('');
     setChatLoading(true);
 
+    const validCourses = (college.courses || []).filter(c => c && c.course_name && c.course_name.trim() !== '');
+
     try {
       const collegeContext = JSON.stringify({
         full_name: college.college_name,
@@ -109,15 +111,15 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
         established_year: college.established_year,
         naac_grade: college.naac_grade,
         remarks: college.remarks || 'None',
-        courses_offered: college.courses?.length > 0
-          ? college.courses.map(c =>
-              `${c.course_name}${c.specialization ? ` (${c.specialization})` : ''} - ${c.degree_type}, ${c.duration_years} year(s), Admission: ${c.admission_type || 'N/A'}${c.total_seats ? `, Seats: ${c.total_seats}` : ''}`
-            )
+        courses_offered: validCourses.length > 0
+          ? validCourses.map(c =>
+            `${c.course_name}${c.specialization ? ` (${c.specialization})` : ''} - ${c.degree_type}, ${c.duration_years} year(s), Admission: ${c.admission_type || 'N/A'}${c.total_seats ? `, Seats: ${c.total_seats}` : ''}`
+          )
           : ['No specific course data available in database'],
         cutoffs_last_year: college.cutoffs?.length > 0
           ? college.cutoffs.map(c =>
-              `${c.course_name}${c.specialization ? ` (${c.specialization})` : ''} [${c.category} / ${c.domicile || 'N/A'}]: ${c.cutoff_value} ${c.cutoff_type || ''} (Round ${c.round_number || 1})`
-            )
+            `${c.course_name}${c.specialization ? ` (${c.specialization})` : ''} [${c.category} / ${c.domicile || 'N/A'}]: ${c.cutoff_value} ${c.cutoff_type || ''} (Round ${c.round_number || 1})`
+          )
           : ['No cutoff data available in database']
       }, null, 2);
 
@@ -144,7 +146,7 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
   };
 
   const relevantCutoffs = (college.relevantCutoffs || college.cutoffs || []).slice(0, 4);
-  const courses = (college.courses || []).slice(0, 8);
+  const courses = (college.courses || []).filter(c => c && c.course_name && c.course_name.trim() !== '').slice(0, 8);
   const hasCutoffs = relevantCutoffs.length > 0;
   const hasCourses = courses.length > 0;
 
@@ -226,9 +228,9 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
           {/* Cutoff pills removed from UI (handled by AI) */}
 
           {(!user || user.role === 'student') && (
-            <button 
-              onClick={handleSaveToggle} 
-              className="college-save-btn" 
+            <button
+              onClick={handleSaveToggle}
+              className="college-save-btn"
               aria-label="Save college"
             >
               <FiBookmark size={18} fill={isSaved ? '#ea580c' : 'none'} color={isSaved ? '#ea580c' : '#64748b'} />
@@ -260,13 +262,13 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
             <div className="college-expanded-inner">
               {/* Tabs */}
               <div className="college-tabs">
-                <button 
+                <button
                   className={`college-tab-btn ${activeTab === 'details' ? 'active' : ''}`}
                   onClick={() => setActiveTab('details')}
                 >
                   <FiLayers size={14} /> Details
                 </button>
-                <button 
+                <button
                   className={`college-tab-btn ${activeTab === 'chat' ? 'active' : ''}`}
                   onClick={() => setActiveTab('chat')}
                 >
@@ -359,9 +361,9 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
                     )}
                   </div>
                   <form className="chat-input-form" onSubmit={handleSendMessage}>
-                    <input 
-                      type="text" 
-                      placeholder="e.g. What are the placement statistics?" 
+                    <input
+                      type="text"
+                      placeholder="e.g. What are the placement statistics?"
                       value={chatInput}
                       onChange={(e) => setChatInput(e.target.value)}
                       disabled={chatLoading}
@@ -380,6 +382,74 @@ function CollegeCard({ college, index, user, isSaved, onSaveToggle }) {
   );
 }
 
+function MultiSelect({ options, selected, onChange, placeholder }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [ref]);
+
+  const toggleOption = (opt) => {
+    if (selected.includes(opt)) {
+      onChange(selected.filter(item => item !== opt));
+    } else {
+      onChange([...selected, opt]);
+    }
+  };
+
+  return (
+    <div ref={ref} style={{ position: 'relative', width: '100%' }}>
+      <div 
+        className="form-select filter-select" 
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', minHeight: '38px', padding: '8px 12px', background: '#fff', border: '1px solid var(--border-light, #e2e8f0)', borderRadius: '8px' }}
+        onClick={() => setOpen(!open)}
+      >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: selected.length === 0 ? '#94a3b8' : '#0f172a', fontSize: '14px' }}>
+          {selected.length === 0 ? placeholder : `${selected.length} selected`}
+        </span>
+        <FiChevronDown size={14} style={{ color: '#64748b', transform: open ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s' }} />
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.div 
+            initial={{ opacity: 0, y: -5 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.15 }}
+            style={{ 
+              position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, 
+              background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', 
+              marginTop: '4px', maxHeight: '250px', overflowY: 'auto', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'
+            }}
+          >
+            {options.map(opt => (
+              <label key={opt} style={{ display: 'flex', alignItems: 'center', padding: '8px 12px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', margin: 0 }}>
+                <input 
+                  type="checkbox" 
+                  checked={selected.includes(opt)} 
+                  onChange={() => toggleOption(opt)} 
+                  style={{ marginRight: '8px', cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: '14px', color: '#334155' }}>{opt}</span>
+              </label>
+            ))}
+            {options.length === 0 && (
+              <div style={{ padding: '8px 12px', fontSize: '14px', color: '#94a3b8' }}>No options</div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function CollegeSearch() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -394,9 +464,9 @@ export default function CollegeSearch() {
   const [search, setSearch] = useState(() => {
     return new URLSearchParams(window.location.search).get('search') || '';
   });
-  const [city, setCity] = useState('');
-  const [course, setCourse] = useState('');
-  const [collegeType, setCollegeType] = useState('');
+  const [city, setCity] = useState([]);
+  const [course, setCourse] = useState([]);
+  const [collegeType, setCollegeType] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [savedCollegeIds, setSavedCollegeIds] = useState(new Set());
 
@@ -445,9 +515,9 @@ export default function CollegeSearch() {
     try {
       const params = { page: pg, limit: 15 };
       if (search.trim()) params.search = search.trim();
-      if (city) params.city = city;
-      if (course) params.course = course;
-      if (collegeType) params.collegeType = collegeType;
+      if (city.length > 0) params.city = city.join(',');
+      if (course.length > 0) params.course = course.join(',');
+      if (collegeType.length > 0) params.collegeType = collegeType.join(',');
       if (user?.category) params.category = user.category;
 
       const res = await axios.get(API, { params });
@@ -488,24 +558,17 @@ export default function CollegeSearch() {
 
   const clearFilters = () => {
     setSearch('');
-    setCity('');
-    setCourse('');
-    setCollegeType('');
+    setCity([]);
+    setCourse([]);
+    setCollegeType([]);
   };
 
-  const activeFilterCount = [city, course, collegeType].filter(Boolean).length;
+  const activeFilterCount = city.length + course.length + collegeType.length;
 
   return (
     <div className="search-page">
       <div className="search-shell">
-        {/* Header */}
-        <motion.header className="search-header" {...fadeUp(0)}>
-          <div className="search-header-left">
-            <Link to="/dashboard" className="search-back-btn">
-              <FiArrowLeft size={18} />
-            </Link>
-          </div>
-        </motion.header>
+
 
         {/* Hero search area */}
         <motion.div className="search-hero" {...fadeUp(0.1)}>
@@ -553,69 +616,30 @@ export default function CollegeSearch() {
             {showFilters && (
               <motion.div
                 className="filter-panel"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } }}
-                exit={{ height: 0, opacity: 0, transition: { duration: 0.2 } }}
+                initial={{ height: 0, opacity: 0, overflow: 'hidden' }}
+                animate={{ height: 'auto', opacity: 1, transitionEnd: { overflow: 'visible' }, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } }}
+                exit={{ height: 0, opacity: 0, overflow: 'hidden', transition: { duration: 0.2 } }}
               >
                 <div className="filter-panel-inner">
                   <div className="filter-group">
                     <label className="filter-label">
                       <FiMapPin size={15} /> City
                     </label>
-                    <div className="select-wrap">
-                      <select
-                        id="filter-city"
-                        className="form-select filter-select"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                      >
-                        <option value="">All Cities</option>
-                        {cities.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                      <span className="select-arrow">▾</span>
-                    </div>
+                    <MultiSelect options={cities} selected={city} onChange={setCity} placeholder="All Cities" />
                   </div>
 
                   <div className="filter-group">
                     <label className="filter-label">
                       <FiBook size={15} /> Course
                     </label>
-                    <div className="select-wrap">
-                      <select
-                        id="filter-course"
-                        className="form-select filter-select"
-                        value={course}
-                        onChange={(e) => setCourse(e.target.value)}
-                      >
-                        <option value="">All Courses</option>
-                        {courseOptions.map((c) => (
-                          <option key={c} value={c}>{c}</option>
-                        ))}
-                      </select>
-                      <span className="select-arrow">▾</span>
-                    </div>
+                    <MultiSelect options={courseOptions} selected={course} onChange={setCourse} placeholder="All Courses" />
                   </div>
 
                   <div className="filter-group">
                     <label className="filter-label">
                       <FiHome size={15} /> College Type
                     </label>
-                    <div className="select-wrap">
-                      <select
-                        id="filter-type"
-                        className="form-select filter-select"
-                        value={collegeType}
-                        onChange={(e) => setCollegeType(e.target.value)}
-                      >
-                        <option value="">All Types</option>
-                        {typeOptions.map((t) => (
-                          <option key={t} value={t}>{t}</option>
-                        ))}
-                      </select>
-                      <span className="select-arrow">▾</span>
-                    </div>
+                    <MultiSelect options={typeOptions} selected={collegeType} onChange={setCollegeType} placeholder="All Types" />
                   </div>
 
                   {activeFilterCount > 0 && (
@@ -631,24 +655,24 @@ export default function CollegeSearch() {
           {/* Active filter chips */}
           {activeFilterCount > 0 && (
             <motion.div className="active-filters" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {city && (
-                <span className="active-chip">
-                  <FiMapPin size={12} /> {city}
-                  <button onClick={() => setCity('')}><FiX size={12} /></button>
+              {city.map(c => (
+                <span key={`city-${c}`} className="active-chip">
+                  <FiMapPin size={12} /> {c}
+                  <button onClick={() => setCity(city.filter(x => x !== c))}><FiX size={12} /></button>
                 </span>
-              )}
-              {course && (
-                <span className="active-chip">
-                  <FiBook size={12} /> {course}
-                  <button onClick={() => setCourse('')}><FiX size={12} /></button>
+              ))}
+              {course.map(c => (
+                <span key={`course-${c}`} className="active-chip">
+                  <FiBook size={12} /> {c}
+                  <button onClick={() => setCourse(course.filter(x => x !== c))}><FiX size={12} /></button>
                 </span>
-              )}
-              {collegeType && (
-                <span className="active-chip">
-                  <FiHome size={12} /> {collegeType}
-                  <button onClick={() => setCollegeType('')}><FiX size={12} /></button>
+              ))}
+              {collegeType.map(c => (
+                <span key={`type-${c}`} className="active-chip">
+                  <FiHome size={12} /> {c}
+                  <button onClick={() => setCollegeType(collegeType.filter(x => x !== c))}><FiX size={12} /></button>
                 </span>
-              )}
+              ))}
             </motion.div>
           )}
         </motion.div>
@@ -666,11 +690,7 @@ export default function CollegeSearch() {
                 </>
               )}
             </span>
-            {user?.category && (
-              <span className="results-category-note">
-                Showing cutoffs for <strong>{user.category}</strong> category
-              </span>
-            )}
+
           </motion.div>
 
           {/* Loading */}
@@ -699,11 +719,11 @@ export default function CollegeSearch() {
           {!loading && colleges.length > 0 && (
             <motion.div className="college-list" variants={stagger} initial="initial" animate="animate">
               {colleges.map((college, i) => (
-                <CollegeCard 
-                  key={`${college.college_name}-${i}`} 
-                  college={college} 
-                  index={i} 
-                  user={user} 
+                <CollegeCard
+                  key={`${college.college_name}-${i}`}
+                  college={college}
+                  index={i}
+                  user={user}
                   isSaved={savedCollegeIds.has(college._id)}
                   onSaveToggle={(id, newSavedArray) => setSavedCollegeIds(new Set(newSavedArray))}
                 />

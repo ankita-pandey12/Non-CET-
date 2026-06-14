@@ -107,4 +107,23 @@ router.put('/students/:id/make-admin', adminAuth, async (req, res) => {
   }
 });
 
+// Remove admin privileges from a student
+router.put('/students/:id/remove-admin', adminAuth, async (req, res) => {
+  try {
+    const student = await Student.findByIdAndUpdate(
+      req.params.id,
+      { isAdmin: false },
+      { new: true }
+    );
+    
+    if (!student) {
+      return res.status(404).json({ success: false, message: 'Student not found' });
+    }
+
+    res.json({ success: true, message: 'Admin privileges removed successfully', data: student });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to remove admin privileges' });
+  }
+});
+
 module.exports = router;

@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowRight, FiBookOpen, FiTarget, FiAward, FiUsers, FiSettings, FiActivity, FiBriefcase, FiChevronDown, FiChevronUp, FiMapPin, FiCalendar, FiExternalLink } from 'react-icons/fi';
+import { FiArrowRight, FiBookOpen, FiTarget, FiAward, FiUsers, FiSettings, FiActivity, FiBriefcase, FiChevronDown, FiChevronUp, FiMapPin, FiCalendar, FiExternalLink, FiTrendingUp, FiSearch } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import './Home.css';
+import Footer from '../components/Footer';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 30 },
@@ -11,10 +12,10 @@ const fadeUp = (delay = 0) => ({
 });
 
 const topColleges = [
-  { name: 'College of Engineering, Pune', short: 'COEP', location: 'Pune, Maharashtra', img: '/coep-logo.png', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
-  { name: 'Veermata Jijabai Technological Institute', short: 'VJTI', location: 'Mumbai, Maharashtra', img: '/vjti-logo.png', gradient: 'linear-gradient(135deg, #ec4899, #be185d)' },
-  { name: 'Sardar Patel Institute of Technology', short: 'SPIT', location: 'Mumbai, Maharashtra', img: '/spit-logo.png', gradient: 'linear-gradient(135deg, #f97316, #ea580c)' },
-  { name: 'Pune Institute of Computer Technology', short: 'PICT', location: 'Pune, Maharashtra', img: '/pict-logo.png', gradient: 'linear-gradient(135deg, #10b981, #047857)' }
+  { name: "St. Xavier's College", short: "St. Xavier's", location: 'Mumbai, Maharashtra', img: '/xaviers-logo.png', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
+  { name: 'Fergusson College', short: 'Fergusson', location: 'Pune, Maharashtra', img: '/fergusson-logo.png', gradient: 'linear-gradient(135deg, #ec4899, #be185d)' },
+  { name: 'Dr. Ambedkar College', short: 'Dr. Ambedkar', location: 'Nagpur, Maharashtra', img: '/ambedkar-logo.png', gradient: 'linear-gradient(135deg, #f97316, #ea580c)' },
+  { name: 'Jai Hind College', short: 'Jai Hind', location: 'Mumbai, Maharashtra', img: '/jaihind-logo.png', gradient: 'linear-gradient(135deg, #10b981, #047857)' }
 ];
 
 const topUniversities = [
@@ -46,13 +47,13 @@ const topUniversities = [
     website: 'https://nagpuruniversity.ac.in'
   },
   {
-    name: 'Bharati Vidyapeeth (Deemed to be University)',
+    name: 'Yashwantrao Chavan Maharashtra Open University (YCMOU)',
     logo: '🎓',
-    location: 'Pune, Maharashtra',
-    established: '1964',
-    type: 'Deemed University',
-    naac: 'A++',
-    website: 'https://www.bvuniversity.edu.in'
+    location: 'Nashik, Maharashtra',
+    established: '1989',
+    type: 'State Open University',
+    naac: 'A',
+    website: 'https://www.ycmou.ac.in'
   }
 ];
 
@@ -76,7 +77,9 @@ const academicPaths = [
     paths: [
       { title: 'LAW (BA LLB / BBA LLB)', institutes: 'NLUs, Government Law Colleges, Private Institutions', icon: <FiBriefcase />, exams: [{ name: 'CLAT', desc: 'Common Law Admission Test for NLUs.' }, { name: 'MH CET Law', desc: 'State level law entrance.' }] },
       { title: 'MANAGEMENT (BMS / BBA / MBA)', institutes: 'IIMs, SPJIMR, Symbiosis, MIT-WPU', icon: <FiUsers />, exams: [{ name: 'CAT / MAH-MBA CET', desc: 'For postgraduate management programs.' }] },
-      { title: 'AGRICULTURE & FORESTRY', institutes: 'B.Sc. Hons in Agri, Horticulture, Forestry', icon: <FiAward />, exams: [{ name: 'MHT-CET (Agri)', desc: 'State level agriculture entrance.' }, { name: 'ICAR AIEEA', desc: 'National level agriculture exam.' }] }
+      { title: 'AGRICULTURE & FORESTRY', institutes: 'B.Sc. Hons in Agri, Horticulture, Forestry', icon: <FiAward />, exams: [{ name: 'MHT-CET (Agri)', desc: 'State level agriculture entrance.' }, { name: 'ICAR AIEEA', desc: 'National level agriculture exam.' }] },
+      { title: 'GENERAL SCIENCES (B.Sc. / M.Sc.)', institutes: 'Top Universities, Research Institutes, IISERs', icon: <FiBookOpen />, exams: [{ name: 'NEST', desc: 'National Entrance Screening Test for Integrated M.Sc.' }, { name: 'IISER Aptitude Test (IAT)', desc: 'For BS-MS dual degree programs at IISERs.' }] },
+      { title: 'COMMERCE & FINANCE (B.Com. / M.Com.)', institutes: 'Top Commerce Colleges, DU, Christ University', icon: <FiTrendingUp />, exams: [{ name: 'CUET UG', desc: 'Common University Entrance Test for admission to commerce programs.' }] }
     ]
   }
 ];
@@ -105,47 +108,34 @@ export default function Home() {
 
   return (
     <div className="home-page">
-      {/* Trendy Hero Section */}
-      <section className="hero-dark">
-        <div className="hero-content">
-          <motion.h1 className="hero-title-trendy" {...fadeUp(0.1)}>
-            Find Your Perfect College.<br />
-            <span className="gradient-text-trendy">Build Your Future.</span>
+      {/* New Hero Section */}
+      <section className="hero-university-bg">
+        <div className="hero-overlay"></div>
+        <div className="hero-content-centered">
+          <motion.h1 className="hero-title-main" {...fadeUp(0.1)}>
+            Your Complete <span className="text-highlight-orange">Maharashtra</span> Admission Guide
           </motion.h1>
-
-          <motion.p className="hero-subtitle-trendy" {...fadeUp(0.2)}>
-            Explore colleges, compare cutoffs, discover career paths, and make confident admission decisions with real data.
+          
+          <motion.p className="hero-subtitle-main" {...fadeUp(0.2)}>
+            Explore UG and PG programs, compare colleges, check eligibility and admission details—all in one place.
           </motion.p>
 
-          <motion.div className="hero-actions-trendy" {...fadeUp(0.3)}>
-            {user ? (
-              <Link to="/search" className="btn btn-gradient-orange btn-lg">
-                EXPLORE COLLEGES <FiArrowRight size={20} />
+          <motion.div className="hero-search-container" {...fadeUp(0.3)}>
+            <div className="hero-search-bar">
+              <FiSearch size={20} className="hero-search-icon" />
+              <input 
+                type="text" 
+                placeholder="Search courses, colleges, cities, or streams..." 
+                className="hero-search-input"
+              />
+              <Link to="/search" className="hero-search-btn">
+                Find Colleges
               </Link>
-            ) : (
-              <>
-                <Link to="/register" className="btn btn-gradient-orange btn-lg">
-                  START YOUR SEARCH NOW 🚀
-                </Link>
-                <Link to="/login" className="btn btn-ghost-dark btn-lg">
-                  GUIDE ME
-                </Link>
-              </>
-            )}
+            </div>
           </motion.div>
         </div>
+        
 
-        <motion.div className="hero-images" {...fadeUp(0.4)}>
-          <div className="img-col img-col-1">
-            <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=400" alt="Students" className="hero-img" />
-          </div>
-          <div className="img-col img-col-2">
-            <img src="https://images.unsplash.com/photo-1511629091441-ee46146481b6?auto=format&fit=crop&q=80&w=400" alt="College Campus" className="hero-img" />
-          </div>
-          <div className="img-col img-col-3">
-            <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=400" alt="Studying" className="hero-img" />
-          </div>
-        </motion.div>
       </section>
 
       {/* Top Colleges Section */}
@@ -172,7 +162,7 @@ export default function Home() {
                 )}
               </div>
               <div className="college-partner-name">
-                {college.short} ({college.location.split(',')[0].toUpperCase()})
+                {college.name}
               </div>
             </motion.div>
           ))}
@@ -293,6 +283,7 @@ export default function Home() {
           </Link>
         </div>
       </motion.section>
+      <Footer />
     </div>
   );
 }

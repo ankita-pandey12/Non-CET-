@@ -78,8 +78,7 @@ export default function Navbar() {
       <div className="navbar-inner">
         {/* Logo Section */}
         <Link to="/" className="navbar-logo">
-          <div className="logo-icon">CP</div>
-          <span className="logo-text">CollegePredictor</span>
+          <img src="/logo.png" alt="Vidyarthi Mitra" style={{ height: '36px', objectFit: 'contain' }} />
         </Link>
 
         {/* Desktop Links */}
